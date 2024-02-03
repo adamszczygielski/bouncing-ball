@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bouncing Ball</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }   
+    canvas {
+        border: 2px solid black;
+        background-color: darkgrey;
+    }
+    button {
+        background-color: #04AA6D;
+        text-align: center;
+        font-size: 32px;
+        width: 64px;
+        height: 64px;
+        margin-right: 4px;
+    }
+    div {
+        padding: 4px;
+    }
+    input {
+        background-color: darkgrey;
+        text-align: right;
+        font-size: 24px;
+        width: 96px;
+        height: 64px;
+        border: 2px solid;
+    }
+    body {
+        font-size: 24px;
+    }
+</style>
+</head>
+<body style="background-color: gray;">
+
+<div>
+    <div>
+        <canvas onclick="speedUpY()"></canvas>        
+    </div>
+    <div>
+        <button class="button" onclick="restart()">&#11118;</button>
+        <button class="button" onkeypress="run()"> &#11122;</button>
+        <button class="button" onclick="start()">&#129058;</button>
+    </div>
+</div>
+
+<script>
+    let intervalId = 0;
+
+    //canvas
+    const cnv = document.querySelector('canvas');
+    const ctx = cnv.getContext('2d');
+    cnv.width = 800;
+    cnv.height = 600;
+    
+    //ball
+    const ballSize = 24;
+    let ballPosX = (cnv.width + ballSize) / 2;
+    let ballSpeedX = 5;
+    let ballPosY = ballSize + ballSize / 2;
+    let ballSpeedY = 0;
+    drawBall();
+
+    function calculateBallMovement() {
+        /*Y down direction*/
+        if (ballSpeedY >= 0) {
+            ballSpeedY = ballSpeedY + 0.1;
+            if (ballPosY + ballSize + ballSpeedY <= cnv.height) {
+                ballPosY = ballPosY + ballSpeedY;
+            } else {
+                //floor rebound
+                ballPosY = ballPosY - (ballSpeedY - (cnv.height - ballPosY)) - ballSize;
+                ballSpeedY = -ballSpeedY;
+            }
+        /*Y up direction*/
+        } else {
+            ballSpeedY = ballSpeedY + 0.2;
+            ballPosY = ballPosY + ballSpeedY;
+        }
+
+
+        /*X right direction*/
+        if (ballSpeedX > 0) {
+            if (ballPosX + ballSize + ballSpeedX <= cnv.width) {
+                ballPosX = ballPosX + ballSpeedX;
+            } else {
+                //right wall rebound
+                ballPosX = ballPosX - (ballSpeedX - (cnv.width - ballPosX)) - ballSize;
+                ballSpeedX = -ballSpeedX;
+            }
+        /*X left direction*/
+        } else {
+            if (ballPosX + ballSpeedX - ballSize < 0) {
+                ballSpeedX = -ballSpeedX;   
+            }
+            ballPosX = ballPosX + ballSpeedX;
+        }
+        ballSpeedX = ballSpeedX * 0.998;
+    }
+
+    function run() {
+        calculateBallMovement();
+        drawBall();
+    }
+
+    function drawBall() {
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        ctx.beginPath();
+        ctx.arc(ballPosX, ballPosY, ballSize, 0, Math.PI * 2);
+        ctx.fillStyle = '#04AA6D';
+        ctx.fill();
+        ctx.strokeStyle = 'black'
+        ctx.stroke();
+    }
+
+    function start() {
+        if (intervalId == 0) {
+            intervalId = setInterval(run, 1000/60);
+        }
+    }
+
+    function restart() {
+        clearInterval(intervalId);
+        intervalId = 0;
+        ballSpeedX = 5;
+        ballSpeedY = 0;
+        ballPosX = (cnv.width + ballSize) / 2;
+        ballPosY = ballSize + ballSize / 2;
+        drawBall();
+    }
+
+    function speedUpY() {
+        ballSpeedY = 1.8 * ballSpeedY;
+    }
+</script>
+</body>
+</html>
